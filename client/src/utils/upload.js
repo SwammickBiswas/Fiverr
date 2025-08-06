@@ -7,7 +7,7 @@ const upload = async (file) => {
 
   try {
     const res = await axios.post(import.meta.env.VITE_UPLOAD_LINK, data);
-    return res.data.secure_url;  // <-- Correct field
+    return res.data.secure_url;  
   } catch (err) {
     console.log("Upload failed:", err.response?.data || err.message);
   }
