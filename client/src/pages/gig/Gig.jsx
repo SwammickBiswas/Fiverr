@@ -1,6 +1,9 @@
 import React from "react";
 import "./Gig.scss";
-import { Slider } from "infinite-react-carousel/lib";
+import Slider from "react-slick"; // ✅ new carousel
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import newRequest from "../../utils/newRequest";
@@ -12,9 +15,7 @@ function Gig() {
   const { isLoading, error, data } = useQuery({
     queryKey: ["gig"],
     queryFn: () =>
-      newRequest.get(`/gigs/single/${id}`).then((res) => {
-        return res.data;
-      }),
+      newRequest.get(`/gigs/single/${id}`).then((res) => res.data),
   });
 
   const userId = data?.userId;
@@ -26,11 +27,18 @@ function Gig() {
   } = useQuery({
     queryKey: ["user"],
     queryFn: () =>
-      newRequest.get(`/users/${userId}`).then((res) => {
-        return res.data;
-      }),
+      newRequest.get(`/users/${userId}`).then((res) => res.data),
     enabled: !!userId,
   });
+
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: true,
+  };
 
   return (
     <div className="gig">
@@ -42,9 +50,10 @@ function Gig() {
         <div className="container">
           <div className="left">
             <span className="breadcrumbs">
-              Fiverr {">"} Graphics & Design {">"}
+              Fiverr &gt; Graphics & Design &gt;
             </span>
             <h1>{data.title}</h1>
+
             {isLoadingUser ? (
               "loading"
             ) : errorUser ? (
@@ -61,21 +70,29 @@ function Gig() {
                   <div className="stars">
                     {Array(Math.round(data.totalStars / data.starNumber))
                       .fill()
-                      .map((item, i) => (
+                      .map((_, i) => (
                         <img src="/img/star.png" alt="" key={i} />
                       ))}
-                    <span>{Math.round(data.totalStars / data.starNumber)}</span>
+                    <span>
+                      {Math.round(data.totalStars / data.starNumber)}
+                    </span>
                   </div>
                 )}
               </div>
             )}
-            <Slider slidesToShow={1} arrowsScroll={1} className="slider">
+
+            {/* ✅ Updated carousel */}
+            <Slider {...sliderSettings} className="slider">
               {data.images.map((img) => (
-                <img key={img} src={img} alt="" />
+                <div key={img}>
+                  <img src={img} alt="" />
+                </div>
               ))}
             </Slider>
+
             <h2>About This Gig</h2>
             <p>{data.desc}</p>
+
             {isLoadingUser ? (
               "loading"
             ) : errorUser ? (
@@ -91,7 +108,7 @@ function Gig() {
                       <div className="stars">
                         {Array(Math.round(data.totalStars / data.starNumber))
                           .fill()
-                          .map((item, i) => (
+                          .map((_, i) => (
                             <img src="/img/star.png" alt="" key={i} />
                           ))}
                         <span>
@@ -130,8 +147,10 @@ function Gig() {
                 </div>
               </div>
             )}
+
             <Reviews gigId={id} />
           </div>
+
           <div className="right">
             <div className="price">
               <h3>{data.shortTitle}</h3>
@@ -157,7 +176,7 @@ function Gig() {
               ))}
             </div>
             <Link to={`/pay/${id}`}>
-            <button>Continue</button>
+              <button>Continue</button>
             </Link>
           </div>
         </div>
